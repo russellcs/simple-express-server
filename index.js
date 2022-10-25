@@ -1,37 +1,28 @@
+require("dotenv").config();
 const express = require("express"); //the import
 const app = express(); //create an instance
 const { simpsons } = require("./data/simpsons");
+const { random } = require("./utils");
 
-app.post("/sayhi", (req, res) => {
-  res.send("Hi from the back end!");
+simpsons.forEach((element) => {
+  element.id = random(10000000);
+  element.characterDirection = element.characterDirection.toLowerCase();
 });
 
-app.get("/quotes", (req, res) => {
-  let { count, search } = req.query;
-  count = Number(count);
+//middleware
+app.use(express.static("public")); //handle static files
+app.use(express.json()); //turns the body into an object
 
-  const _simpsons = [...simpsons];
-
-  _simpsons.forEach((element, index) => {
-    element.id = index;
-    element.characterDirection = element.characterDirection.toLowerCase();
-  });
-
-  //if a search filter the results
-  let filtered = _simpsons;
-  if (search) {
-    filtered = filtered.filter((item) => {
-      return item.character.toLowerCase().includes(search);
-    });
-  }
-
-  //check if a count and chop the array down
-  if (count && count > 0 && typeof count === "number") {
-    _simpsons.length = count;
-  }
-
-  res.send(filtered);
+//custom middleware
+app.use((req, res, next) => {
+  req.simpsons = simpsons;
+  next();
 });
+
+//route middleware
+app.use("/delete", require("./routes/delete"));
+app.use("/read", require("./routes/read"));
+app.use("/create", require("./routes/create"));
 
 const port = process.env.PORT || 6001;
 app.listen(port, () => {
