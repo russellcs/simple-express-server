@@ -6,7 +6,7 @@ const router = express.Router();
 router.post("/", (req, res) => {
   const { body, simpsons } = req;
 
-  if (!user.userName || !user.password) {
+  if (!body.userName || !body.password) {
     res.send({ status: 0, error: "Bad creds!" });
   }
 
