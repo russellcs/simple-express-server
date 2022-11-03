@@ -19,12 +19,19 @@ const queries = {
     return `INSERT INTO logins
                     (user_id, token)
                             VALUES
-                                (${user_id}, "${token}")`;
+                                (${user_id}, "${token}");`;
   },
 
   removeToken: (token) => {
     return `DELETE FROM logins
-                WHERE token = "${token}"`;
+                WHERE token = "${token}";`;
+  },
+
+  getUser: (token) => {
+    return `SELECT name, email, users.entry_date FROM users
+              JOIN logins
+                ON users.id = logins.user_id
+                  WHERE token = "${token}";`;
   },
 };
 
