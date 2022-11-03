@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   // console.log(req.simpsons);
   // let { count, search } = req.query;
   // count = Number(count);

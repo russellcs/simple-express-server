@@ -1,30 +1,32 @@
 const express = require("express");
 const { simpsons } = require("../data/simpsons");
+const { checkCreds, addToken } = require("../mysql/queries");
 const { getUniqueId } = require("../utils");
 const router = express.Router();
+const sha256 = require("sha256");
 
-router.post("/", (req, res) => {
-  const { body, simpsons } = req;
+router.post("/", async (req, res) => {
+  let { email, password } = req.body;
 
-  if (!body.userName || !body.password) {
-    res.send({ status: 0, error: "Bad creds!" });
+  if (!email || !password) {
+    res.send({ status: 0, error: "Invalid input data" });
   }
 
-  const indexOfUser = simpsons.findIndex((user) => {
-    return user.userName === body.userName && user.password === body.password;
-  });
+  password = sha256(process.env.SALT + password);
 
-  //if the user/pass match then generate a token and send to the user
-  if (indexOfUser > -1) {
-    const token = getUniqueId(64);
+  const results = await req.asyncMySQL(checkCreds(email, password));
 
-    simpsons[indexOfUser].token = token;
-
-    res.send({ status: 1, token });
+  //if creds do not match
+  if (results.length === 0) {
+    res.send({ status: 0, error: "Incorrect email and/or password" });
     return;
   }
 
-  res.send({ status: 0, error: "Bad creds!" });
+  const token = getUniqueId(64);
+
+  await req.asyncMySQL(addToken(results[0].id, token));
+
+  res.send({ status: 1, token });
 });
 
 module.exports = router;
