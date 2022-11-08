@@ -10,9 +10,9 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-function asyncMySQL(query) {
+function asyncMySQL(query, vars) {
   return new Promise((resolve, reject) => {
-    connection.query(query, (error, results) => {
+    connection.query(query, vars, (error, results) => {
       if (error) {
         console.log(
           "Connection to server failed, check server is running",

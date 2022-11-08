@@ -4,8 +4,10 @@ const { checkCreds, addToken } = require("../mysql/queries");
 const { getUniqueId } = require("../utils");
 const router = express.Router();
 const sha256 = require("sha256");
+const chalk = require("chalk");
 
 router.post("/", async (req, res) => {
+  console.log(chalk.blue("Request body: ", JSON.stringify(req.body)));
   let { email, password } = req.body;
 
   if (!email || !password) {
@@ -14,7 +16,11 @@ router.post("/", async (req, res) => {
 
   password = sha256(process.env.SALT + password);
 
-  const results = await req.asyncMySQL(checkCreds(email, password));
+  const query = checkCreds();
+
+  const params = [email, password];
+
+  const results = await req.asyncMySQL(query, params);
 
   //if creds do not match
   if (results.length === 0) {
