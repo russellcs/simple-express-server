@@ -3,7 +3,8 @@ const { createUser } = require("../mysql/queries");
 const router = express.Router();
 const { getUniqueId } = require("../utils");
 const sha256 = require("sha256");
-const queries = require("../mongoose/connection");
+const sendEmail = require("../email/sib");
+const welcome = require("../email/templates/welcome");
 
 router.post("/", async (req, res) => {
   let { name, email, password } = req.body;
@@ -12,15 +13,15 @@ router.post("/", async (req, res) => {
   if (name && email && password) {
     password = sha256(process.env.SALT + password);
 
-    //the mongo way!
-    const results = await queries.addUser(name, email, password);
-    if (results._id) {
+    const result = await req.asyncMySQL(createUser(name, email, password));
+
+    if (result.affectedRows === 1) {
+      //send a welcome
+      // sendEmail(email, "Thanks for creating an account", welcome("Some data"));
       res.send({ status: 1 });
     } else {
-      res.send({ status: 0, error: "Mongo said NO!" });
+      res.send({ status: 0, error: "Duplicate entry" });
     }
-
-    // const result = await req.asyncMySQL(createUser(name, email, password));
 
     return;
   }
