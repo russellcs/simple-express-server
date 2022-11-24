@@ -5,6 +5,13 @@ const express = require("express"); //the import
 const app = express(); //create an instance
 const { checkToken } = require("./middleware/auth");
 const { addToLog } = require("./middleware/logging");
+const cors = require("cors");
+const helmet = require("helmet");
+
+//generic middleware
+app.use(helmet());
+
+app.use(cors());
 
 //check the db status
 checkDBStatus(asyncMySQL);
