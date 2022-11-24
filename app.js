@@ -43,5 +43,5 @@ app.use("/logoff", checkToken, require("./routes/logoff"));
 
 const port = process.env.PORT || 6001;
 app.listen(port, () => {
-  console.log(`The server is running on port ${port}`);
+  console.log(`The server is running on port ${port} `);
 });
